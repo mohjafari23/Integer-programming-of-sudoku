@@ -29,4 +29,8 @@ x=optimvar('x',[N,N,N],Type='integer',LowerBound=0,UpperBound=1);
 % Create the objective function weights (all equal to 1)
 weights = ones(N,N,N);
 
+% Create the objective function
+objective=sum(sum(sum(weights.*x)));
+prob.objective=objective;
+
 

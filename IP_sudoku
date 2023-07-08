@@ -21,7 +21,7 @@ end
 options = optimoptions('intlinprog', 'Display', 'iter');
 
 %Create the optimization problem
-prob=optimproblem('ObjectiveSense','maximize',options);
+prob=optimproblem('ObjectiveSense','minimize','Description','sudoku');
 
 % Create the binary decision variables
 x=optimvar('x',[N,N,N],Type='integer',LowerBound=0,UpperBound=1);
@@ -31,6 +31,39 @@ weights = ones(N,N,N);
 
 % Create the objective function
 objective=sum(sum(sum(weights.*x)));
-prob.objective=objective;
+prob.Objective=objective;
+
+% Create the constraints
+constraints = [];
+for i = 1:N
+    for j = 1:N
+        if grid(i, j) ~= 0
+            % Fix the value of pre-filled cells
+            ca=x(i, j, grid(i, j)) == 1;
+            constraints = [constraints; ca];
+        else
+            % Each cell should contain exactly one digit
+            cb=sum(x(i, j, :)) == 1;
+            constraints = [constraints; cb];
+         end
+        
+        % Each digit should appear exactly once in each column
+        cc=reshape(sum(x(:, j, :), 1) == 1,[9,1]);
+          constraints = [constraints; cc];
+    end
+            % Each digit should appear exactly once in each row
+            cd=reshape(sum(x(i, :, :), 2) == 1,[9,1]);
+        constraints = [constraints; cd];
+end
+
+% Each digit should appear exactly once in each 3x3 subgrid
+for p = 0:2
+    for q = 0:2
+        for k = 1:N
+            ce=sum(sum(x(1+p:3+p, 1+q:3+q, k))) == 1;
+            constraints = [constraints; ce ];
+        end
+    end
+end
 
 

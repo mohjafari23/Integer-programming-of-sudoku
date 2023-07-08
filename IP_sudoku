@@ -16,3 +16,17 @@ grid = [5 3 0 0 7 0 0 0 0;
 if N~=9 && M~=9
 error("The sudoku grid is not valid, please enter the correct grid");
 end
+
+%Ceate optimization options
+options = optimoptions('intlinprog', 'Display', 'iter');
+
+%Create the optimization problem
+prob=optimproblem('ObjectiveSense','maximize',options);
+
+% Create the binary decision variables
+x=optimvar('x',[N,N,N],Type='integer',LowerBound=0,UpperBound=1);
+
+% Create the objective function weights (all equal to 1)
+weights = ones(N,N,N);
+
+

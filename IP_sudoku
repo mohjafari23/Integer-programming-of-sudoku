@@ -9,52 +9,38 @@ grid = [5 3 0 0 7 0 0 0 0;
         0 6 0 0 0 0 2 8 0;
         0 0 0 4 1 9 0 0 5;
         0 0 0 0 8 0 0 7 9 ];
-        
+
 % Define the size of the Sudoku grid
-[N,M] = size(grid, 1);
-%
-if N~=9 && M~=9
-error("The sudoku grid is not valid, please enter the correct grid");
-end
-
-%Ceate optimization options
-options = optimoptions('intlinprog', 'Display', 'iter');
-
-%Create the optimization problem
-prob=optimproblem('ObjectiveSense','minimize','Description','sudoku');
+N = size(grid, 1);
 
 % Create the binary decision variables
-x=optimvar('x',[N,N,N],Type='integer',LowerBound=0,UpperBound=1);
+x = optimvar('x',[N, N, N],'Type','integer','LowerBound',0,'UpperBound',1);
 
 % Create the objective function weights (all equal to 1)
-weights = ones(N,N,N);
+weights = ones([N,N,N]);
 
-% Create the objective function
-objective=sum(sum(sum(weights.*x)));
-prob.Objective=objective;
+% Create the optimization problem
+ipsudoku = optimproblem;
+
+% Set up the objective function
+ipsudoku.Objective = sum(sum(sum(weights .* x)));
+
 
 % Create the constraints
-constraints = [];
+prefilled = optimconstr(60,1);
 for i = 1:N
     for j = 1:N
         if grid(i, j) ~= 0
             % Fix the value of pre-filled cells
-            ca=x(i, j, grid(i, j)) == 1;
-            constraints = [constraints; ca];
-        else
-            % Each cell should contain exactly one digit
-            cb=sum(x(i, j, :)) == 1;
-            constraints = [constraints; cb];
-         end
-        
-        % Each digit should appear exactly once in each column
-        cc=reshape(sum(x(:, j, :), 1) == 1,[9,1]);
-          constraints = [constraints; cc];
+                      prefilled(i,1)= x(i, j, grid(i, j)) == 1;
+        end
     end
-            % Each digit should appear exactly once in each row
-            cd=reshape(sum(x(i, :, :), 2) == 1,[9,1]);
-        constraints = [constraints; cd];
 end
+
+   ipsudoku.Constraints.prefilled=prefilled;
+    ipsudoku.Constraints.ci=sum(x,1)==1;
+     ipsudoku.Constraints.cj=sum(x,2)==1;
+      ipsudoku.Constraints.ck=sum(x,3)==1;
 
 % Each digit should appear exactly once in each 3x3 subgrid
 for p = 0:2

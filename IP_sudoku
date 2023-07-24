@@ -54,3 +54,7 @@ for p = 1:3:N
 end
 
  ipsudoku.Constraints.squarecon=squarecon;
+
+% solve the optimization model
+solution=solve(ipsudoku);
+solution.x = round(solution.x);

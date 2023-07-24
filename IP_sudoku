@@ -58,3 +58,11 @@ end
 % solve the optimization model
 solution=solve(ipsudoku);
 solution.x = round(solution.x);
+
+% creating an S matrix for the solution
+y = ones(size(solution.x));
+for k = 2:9
+    y(:,:,k) = k; 
+end
+S = solution.x.*y; 
+S = sum(S,3); 

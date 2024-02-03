@@ -1,5 +1,11 @@
 function S = SudokuSolve(grid)
 
+% SudokuSolve: Solves a Sudoku puzzle using integer linear programming.
+% The grid is a 9x9 matrix where empty cells are represented by zeros, 
+% The function returns the solved Sudoku matrix S.
+% In the matrix S Zeros in the input grid are replaced
+% with the corresponding solved values.
+
 arguments
     grid double {mustBeNonnegative,mustBeNonNan}
 end
